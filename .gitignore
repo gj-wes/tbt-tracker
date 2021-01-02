@@ -24,3 +24,7 @@ pnpm-debug.log*
 
 #firebase config
 firebaseConfig.js
+.firebaserc
+/.firebase
+database.rules.json
+firebase.json

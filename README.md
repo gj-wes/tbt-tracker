@@ -1,5 +1,7 @@
 # tbt-tracker
 
+Scorekeeping app for Warzone tournaments
+
 ## Project setup
 ```
 npm install
