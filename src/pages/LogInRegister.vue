@@ -18,7 +18,7 @@
     <form @submit.prevent="submitForm">
       <label for="logTeamName">Team Name:</label>
       <input type="text" id="logTeamName" required v-model.trim="teamName">
-      <label for="logPass">Password:</label>
+      <label for="logPass">Password: <span v-if="activeTab === 'register'">(6 character minimum)</span></label>
       <input type="password" id="logPass" required v-model.trim="password">
 
       <div class="register-members" v-if="activeTab === 'register'">
@@ -89,6 +89,8 @@
 </template>
 
 <script>
+import fb from '../firebaseInit.js'
+
 export default {
   data() {
     return {
@@ -129,29 +131,29 @@ export default {
     }
   },
   methods: {
-    submitForm() {
+    async submitForm() {
       if (this.activeTab === 'login') {
-        console.log({
+        
+        await this.$store.dispatch('login', {
           email: this.teamNameAsEmail,
-          pass: this.password
+          password: this.password
         })
+        this.$router.replace('/')
+
       } else {
-        console.log({
-          email: this.teamNameAsEmail,
-          pass: this.password
+        
+        const reg = await fb.auth().createUserWithEmailAndPassword(
+          this.teamNameAsEmail,
+          this.password
+        )
+
+        fb.database().ref('teams/' + reg.user.uid).set({
+          teamName: this.teamName,
+          teamMembers: this.teamMembers
         })
+        alert('Team registered!')
+        this.activeTab = 'login'
       }
-    },
-    addTeamToDB(id) {
-      // fb.database().ref('teams/' + id).set({
-      //   teamName: this.regTeamName,
-      //   teamMembers: this.teamMembers
-      // })
-      console.log({
-        id,
-        teamName: this.regTeamName,
-        teamMembers: this.teamMembers
-      })
     }
   }
 }
@@ -170,6 +172,7 @@ export default {
   }
   .switch-tab:hover {
     border-top: .5rem solid seagreen;
+    padding-top: .6rem;
   }
   .switch-tab--active {
     border-bottom: none;
@@ -184,5 +187,9 @@ export default {
     justify-content: space-around;
     align-items: center;
     margin-bottom: 3rem;
+  }
+
+  label > span {
+    font-size: 1rem
   }
 </style>
